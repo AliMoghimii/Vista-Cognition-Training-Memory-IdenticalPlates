@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Vista Cognition Training</title>
+    <link rel="shortcut icon" href="TemplateData/vista-icon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <div id="unity-container" class="unity-desktop">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+      <div id="unity-loading-bar">
+        <div id="vista-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-warning"></div>
+    </div>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+      var unityInstance = null;
+
+      function unityShowBanner(msg, type) {
+        var warningBanner = document.querySelector("#unity-warning");
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type === 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type === 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function () {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/MemoryGame_IdenticalPlates_0.8.2b.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/MemoryGame_IdenticalPlates_0.8.2b.data",
+        frameworkUrl: buildUrl + "/MemoryGame_IdenticalPlates_0.8.2b.framework.js",
+        codeUrl: buildUrl + "/MemoryGame_IdenticalPlates_0.8.2b.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Vista Group Co.",
+        productName: "Vista Cognition Training",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
+      };
+
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+        document.querySelector("#unity-container").className = "unity-mobile";
+        canvas.className = "unity-mobile";
+      } else {
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+      }
+
+      document.querySelector("#unity-loading-bar").style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+        }).then((instance) => {
+          unityInstance = instance;
+          document.querySelector("#unity-loading-bar").style.display = "none";
+          unityInstance.SendMessage("Network Manager", "ReceiveTextFromJS", "eyJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc1NTY4MjIxMiwiZXhwIjoxNzU2Mjg3MDEyfQ.MoUhTawmltojeafWxa3yBVhXkzp-f8OJuzjT2SI7Wq3v8iWt9qo77L-dXrcwVMVIkiGEBuPt-eWZQ05To0FZJohHmK5ecoItAHivjjS32rKYI-v5QBiUhLGTK_h-KNZGKBHYOULzI-hWM818-wKjPHjrBU1iw8ABlxrtzbyPpJXww68NaCqQECEbSahO2vYoBL-nQ57lk9zr1vRuSZ-bB16SwCZ-M-v4wZuXAAuQnCFaniP8gLENwiPELu5odL2Ja_CV9coIYgjSi-QlPh3bZMFMG8U33UXE-K_GtnyvcMPWgNwm5icTYwRj9g7v0YmjNekTlZqIep8FerAiQeMqzqRfN4jN811h1WoZixRbeGTpqlNHEkC91j4RpDDDrJZ0juuBU7PHZVimBmOVSPQ5ZX2o7T4nER80vMzyFouDNozbAqOBxp7ymzflt1CjLtiJ1YNZgI6yXT0a8tffFH4MRLHz8DMGV80KCURQ9t8g-zEJvD5mbuwVVx818cFMQO2Kx1WK_9gurERvCWlXbi0-YB2YNk1VuTPF7XE1ZExHoAiMobaNWv1eQKoL_6gCdj25s4nGXJvlUmb3nJ_vVZbCuXi76lBLvmyZF8NWS9rbdyCtBNBqJxdBH8MduUPEOD4YgcEpWS-BxaO7otwvjBggaWJ8kdekRawqACO353tmtIw");
+
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
+</html>
